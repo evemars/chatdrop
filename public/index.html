@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatDrop</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body class="app-page">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div>
+            <div class="sidebar-badge">ChatDrop</div>
+            <h1>会话</h1>
+          </div>
+          <button id="newConversationButton" class="secondary-button" type="button">
+            新建
+          </button>
+        </div>
+        <div id="conversationList" class="conversation-list"></div>
+      </aside>
+
+      <main class="chat-panel">
+        <header class="chat-header">
+          <div>
+            <div class="chat-header-label">当前会话</div>
+            <h2 id="conversationTitle">文件传输助手</h2>
+          </div>
+          <div class="chat-header-actions">
+            <button id="refreshMessagesButton" class="ghost-button" type="button">
+              刷新
+            </button>
+            <button id="logoutButton" class="ghost-button" type="button">
+              退出登录
+            </button>
+          </div>
+        </header>
+
+        <section id="messageList" class="message-list"></section>
+
+        <form id="composerForm" class="composer">
+          <textarea
+            id="messageInput"
+            placeholder="输入文本，或粘贴图片后直接上传"
+            rows="4"
+          ></textarea>
+          <div class="composer-toolbar">
+            <div class="toolbar-hint">
+              回车换行，Mac 用 Command + Enter 发送，Windows 用 Ctrl + Enter 发送；支持 Ctrl/Cmd + V 粘贴图片
+            </div>
+            <div class="toolbar-actions">
+              <input id="fileInput" type="file" hidden />
+              <button id="uploadButton" type="button" class="secondary-button">
+                上传文件
+              </button>
+              <button id="sendButton" type="submit" class="primary-button">
+                发送
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div id="statusBar" class="status-bar"></div>
+      </main>
+    </div>
+  </body>
+</html>

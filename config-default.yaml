@@ -1,0 +1,11 @@
+server:
+  host: "0.0.0.0"
+  port: 3000
+
+auth:
+  password: "changeme"
+  session_days: 30
+
+storage:
+  files_dir: "./data/files"
+  db_dir: "./data/db"
