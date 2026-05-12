@@ -6,6 +6,4 @@ auth:
   password: "changeme"
   session_days: 30
 
-storage:
-  files_dir: "./data/files"
-  db_dir: "./data/db"
+workspace_dir: "./data"

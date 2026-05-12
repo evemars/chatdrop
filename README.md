@@ -39,7 +39,13 @@ Open [http://localhost:3000](http://localhost:3000).
 Default local config is in `config.yaml`:
 
 - Password: `changeme`
-- Files: `./data/files`
-- Database: `./data/db/chatdrop.sqlite`
+- Workspace: `./data`
+
+The app derives these paths from `workspace_dir`:
+
+- Files: `<workspace_dir>/files`
+- Database: `<workspace_dir>/db/chatdrop.sqlite`
+- PID: `<workspace_dir>/run/chatdrop.pid`
+- Logs: `<workspace_dir>/logs/chatdrop.log`
 
 Change the password before exposing the service to any network.

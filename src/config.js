@@ -26,13 +26,19 @@ function requirePositiveNumber(value, fieldName, fallback) {
   return numberValue;
 }
 
-function loadConfig(configPath = path.resolve(process.cwd(), "config.yaml")) {
-  if (!fs.existsSync(configPath)) {
-    throw new Error(`Config file not found: ${configPath}`);
-  }
+function resolveWorkspaceConfig(rawConfig, configDir) {
+  const workspaceDirRaw = rawConfig.workspace_dir ?? rawConfig.storage?.workspace_dir;
 
-  const rawConfig = yaml.load(fs.readFileSync(configPath, "utf8")) || {};
-  const configDir = path.dirname(configPath);
+  if (workspaceDirRaw) {
+    const workspaceDir = resolveConfiguredPath(configDir, workspaceDirRaw, "workspace_dir");
+    return {
+      workspaceDir,
+      filesDir: path.join(workspaceDir, "files"),
+      dbDir: path.join(workspaceDir, "db"),
+      runDir: path.join(workspaceDir, "run"),
+      logsDir: path.join(workspaceDir, "logs"),
+    };
+  }
 
   const filesDir = resolveConfiguredPath(
     configDir,
@@ -45,8 +51,36 @@ function loadConfig(configPath = path.resolve(process.cwd(), "config.yaml")) {
     "storage.db_dir",
   );
 
-  fs.mkdirSync(filesDir, { recursive: true });
-  fs.mkdirSync(dbDir, { recursive: true });
+  const sharedParent =
+    path.basename(filesDir) === "files" &&
+    path.basename(dbDir) === "db" &&
+    path.dirname(filesDir) === path.dirname(dbDir)
+      ? path.dirname(filesDir)
+      : path.resolve(configDir, "data");
+
+  return {
+    workspaceDir: sharedParent,
+    filesDir,
+    dbDir,
+    runDir: path.join(sharedParent, "run"),
+    logsDir: path.join(sharedParent, "logs"),
+  };
+}
+
+function loadConfig(configPath = path.resolve(process.cwd(), "config.yaml")) {
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Config file not found: ${configPath}`);
+  }
+
+  const rawConfig = yaml.load(fs.readFileSync(configPath, "utf8")) || {};
+  const configDir = path.dirname(configPath);
+  const storage = resolveWorkspaceConfig(rawConfig, configDir);
+
+  fs.mkdirSync(storage.workspaceDir, { recursive: true });
+  fs.mkdirSync(storage.filesDir, { recursive: true });
+  fs.mkdirSync(storage.dbDir, { recursive: true });
+  fs.mkdirSync(storage.runDir, { recursive: true });
+  fs.mkdirSync(storage.logsDir, { recursive: true });
 
   return {
     path: configPath,
@@ -62,10 +96,7 @@ function loadConfig(configPath = path.resolve(process.cwd(), "config.yaml")) {
         30,
       ),
     },
-    storage: {
-      filesDir,
-      dbDir,
-    },
+    storage,
   };
 }
 

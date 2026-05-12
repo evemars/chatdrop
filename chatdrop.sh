@@ -7,12 +7,14 @@ APP_DIR=$(
   pwd
 )
 
-PID_DIR="$APP_DIR/data/run"
-LOG_DIR="$APP_DIR/data/logs"
-PID_FILE="$PID_DIR/chatdrop.pid"
-LOG_FILE="$LOG_DIR/chatdrop.log"
 CONFIG_FILE="$APP_DIR/config.yaml"
 DEFAULT_CONFIG_FILE="$APP_DIR/config-default.yaml"
+WORKSPACE_DIR=""
+PID_DIR=""
+LOG_DIR=""
+PID_FILE=""
+LOG_FILE=""
+PORT=""
 
 ensure_dirs() {
   mkdir -p "$PID_DIR" "$LOG_DIR"
@@ -33,20 +35,23 @@ ensure_config() {
   exit 1
 }
 
-read_port() {
-  if [ -f "$CONFIG_FILE" ]; then
-    port=$(
-      sed -n 's/^[[:space:]]*port:[[:space:]]*//p' "$CONFIG_FILE" |
-        head -n 1 |
-        tr -d '"[:space:]'
-    )
-    if [ -n "$port" ]; then
-      printf '%s\n' "$port"
-      return
-    fi
-  fi
+refresh_runtime_paths() {
+  config_values=$(
+    cd "$APP_DIR" &&
+      node -e '
+        const { loadConfig } = require("./src/config");
+        const config = loadConfig(process.argv[1]);
+        console.log(config.server.port);
+        console.log(config.storage.workspaceDir);
+      ' "$CONFIG_FILE"
+  )
 
-  printf '%s\n' "3000"
+  PORT=$(printf '%s\n' "$config_values" | sed -n '1p')
+  WORKSPACE_DIR=$(printf '%s\n' "$config_values" | sed -n '2p')
+  PID_DIR="$WORKSPACE_DIR/run"
+  LOG_DIR="$WORKSPACE_DIR/logs"
+  PID_FILE="$PID_DIR/chatdrop.pid"
+  LOG_FILE="$LOG_DIR/chatdrop.log"
 }
 
 port_pid() {
@@ -179,9 +184,9 @@ usage() {
 EOF
 }
 
-ensure_dirs
 ensure_config
-PORT=$(read_port)
+refresh_runtime_paths
+ensure_dirs
 
 case "${1:-}" in
   start)
