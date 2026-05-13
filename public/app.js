@@ -42,7 +42,7 @@ function formatListTime(timestamp) {
     return "";
   }
 
-  return new Date(timestamp).toLocaleString("zh-CN", {
+  return new Date(timestamp).toLocaleString("en-US", {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -51,7 +51,7 @@ function formatListTime(timestamp) {
 }
 
 function formatMessageTime(timestamp) {
-  return new Date(timestamp).toLocaleString("zh-CN", {
+  return new Date(timestamp).toLocaleString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -79,11 +79,11 @@ async function api(path, options = {}) {
 
   if (response.status === 401) {
     window.location.href = "/login";
-    throw new Error("登录已失效");
+    throw new Error("Session expired");
   }
 
   if (!response.ok) {
-    throw new Error(payload?.error || "请求失败");
+    throw new Error(payload?.error || "Request failed");
   }
 
   return payload;
@@ -114,7 +114,7 @@ function resetActiveConversationView() {
   state.nextBeforeCursor = null;
   state.historyLoadVisible = false;
   state.loadingHistory = false;
-  conversationTitle.textContent = "暂无会话";
+  conversationTitle.textContent = "No Conversation";
   window.location.hash = "";
   renderMessages();
 }
@@ -170,7 +170,7 @@ function applyLatestMessagesPayload(payload, options = {}) {
 function renderConversationList() {
   if (state.conversations.length === 0) {
     conversationList.innerHTML =
-      '<div class="empty-state">还没有会话，先创建一个。</div>';
+      '<div class="empty-state">No conversations yet. Create one to get started.</div>';
     return;
   }
 
@@ -186,7 +186,7 @@ function renderConversationList() {
           >
             <div class="conversation-item-title">${escapeHtml(conversation.title)}</div>
             <div class="conversation-item-preview">
-              ${escapeHtml(conversation.lastPreview || "暂无内容")}
+              ${escapeHtml(conversation.lastPreview || "No content yet")}
             </div>
             <div class="conversation-item-time">
               ${escapeHtml(formatListTime(conversation.updatedAt))}
@@ -196,9 +196,9 @@ function renderConversationList() {
             type="button"
             class="delete-chip conversation-delete-button"
             data-delete-conversation-id="${conversation.id}"
-            aria-label="删除会话"
+            aria-label="Delete conversation"
           >
-            删除
+            Delete
           </button>
         </div>
       `;
@@ -215,7 +215,7 @@ function renderConversationList() {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
       void deleteConversation(button.dataset.deleteConversationId).catch((error) => {
-        setStatus(error.message || "删除会话失败");
+        setStatus(error.message || "Failed to delete conversation");
       });
     });
   }
@@ -228,8 +228,8 @@ function renderMessages(options = {}) {
     messageList.innerHTML = `
       <div class="empty-state empty-state--panel">
         ${state.activeConversationId
-          ? "当前会话还没有内容。发送一段文本、图片或文件开始使用。"
-          : "还没有选中会话，先在左侧新建或选择一个会话。"}
+          ? "This conversation is empty. Send text, an image, or a file to get started."
+          : "No conversation selected. Create one or choose one from the left."}
       </div>
     `;
     state.historyLoadVisible = false;
@@ -245,7 +245,7 @@ function renderMessages(options = {}) {
           type="button"
           ${state.loadingHistory ? "disabled" : ""}
         >
-          ${state.loadingHistory ? "加载中..." : "加载更早记录"}
+          ${state.loadingHistory ? "Loading..." : "Load earlier messages"}
         </button>
       </div>
     `
@@ -261,9 +261,9 @@ function renderMessages(options = {}) {
             type="button"
             class="delete-chip message-delete-button"
             data-delete-message-id="${message.id}"
-            aria-label="删除消息"
+            aria-label="Delete message"
           >
-            删除
+            Delete
           </button>
           <div class="message-meta">${escapeHtml(formatMessageTime(message.createdAt))}</div>
         </div>
@@ -321,7 +321,7 @@ function renderMessages(options = {}) {
   if (loadHistoryButton) {
     loadHistoryButton.addEventListener("click", () => {
       void loadOlderMessages().catch((error) => {
-        setStatus(error.message || "加载历史失败");
+        setStatus(error.message || "Failed to load message history");
       });
     });
   }
@@ -329,7 +329,7 @@ function renderMessages(options = {}) {
   for (const button of messageList.querySelectorAll("[data-delete-message-id]")) {
     button.addEventListener("click", () => {
       void deleteMessage(button.dataset.deleteMessageId).catch((error) => {
-        setStatus(error.message || "删除消息失败");
+        setStatus(error.message || "Failed to delete message");
       });
     });
   }
@@ -350,9 +350,9 @@ async function loadConversations() {
 async function selectConversation(conversationId) {
   state.activeConversationId = conversationId;
   const activeConversation = getActiveConversation();
-  conversationTitle.textContent = activeConversation?.title || "会话";
+  conversationTitle.textContent = activeConversation?.title || "Conversation";
   renderConversationList();
-  setStatus("加载中...");
+  setStatus("Loading...");
 
   const payload = await api(`/api/conversations/${conversationId}/messages`);
   window.location.hash = conversationId;
@@ -387,7 +387,7 @@ async function refreshLatestMessages(options = {}) {
 
   const requestedConversationId = state.activeConversationId;
   if (!silent) {
-    setStatus("刷新中...");
+    setStatus("Refreshing...");
   }
 
   try {
@@ -478,7 +478,7 @@ async function loadOlderMessages() {
 
   state.loadingHistory = true;
   renderMessages();
-  setStatus("加载更早记录中...");
+  setStatus("Loading earlier messages...");
 
   const previousScrollHeight = messageList.scrollHeight;
   const previousScrollTop = messageList.scrollTop;
@@ -513,7 +513,7 @@ async function sendTextMessage() {
   }
 
   setBusy(true);
-  setStatus("发送中...");
+  setStatus("Sending...");
 
   try {
     const payload = await api(`/api/conversations/${state.activeConversationId}/messages/text`, {
@@ -543,7 +543,7 @@ async function uploadFile(file) {
   }
 
   setBusy(true);
-  setStatus(`上传中：${file.name}`);
+  setStatus(`Uploading: ${file.name}`);
 
   try {
     const formData = new FormData();
@@ -567,12 +567,12 @@ async function uploadFile(file) {
 }
 
 async function createConversation() {
-  const title = window.prompt("输入新会话名称", "新会话");
+  const title = window.prompt("Enter a conversation name", "New Conversation");
   if (title === null) {
     return;
   }
 
-  setStatus("创建会话中...");
+  setStatus("Creating conversation...");
 
   try {
     const payload = await api("/api/conversations", {
@@ -595,13 +595,15 @@ async function deleteConversation(conversationId) {
     return;
   }
 
-  const confirmed = window.confirm("确认删除这个会话吗？会话里的消息和文件记录也会被删除。");
+  const confirmed = window.confirm(
+    "Delete this conversation? Its messages and file records will also be removed.",
+  );
   if (!confirmed) {
     return;
   }
 
   const deletingActiveConversation = state.activeConversationId === conversationId;
-  setStatus("删除会话中...");
+  setStatus("Deleting conversation...");
 
   try {
     await api(`/api/conversations/${conversationId}`, {
@@ -631,12 +633,12 @@ async function deleteMessage(messageId) {
     return;
   }
 
-  const confirmed = window.confirm("确认删除这条消息吗？");
+  const confirmed = window.confirm("Delete this message?");
   if (!confirmed) {
     return;
   }
 
-  setStatus("删除消息中...");
+  setStatus("Deleting message...");
 
   try {
     await api(`/api/conversations/${state.activeConversationId}/messages/${messageId}`, {
@@ -666,7 +668,7 @@ async function logout() {
 composerForm.addEventListener("submit", (event) => {
   event.preventDefault();
   void sendTextMessage().catch((error) => {
-    setStatus(error.message || "发送失败");
+    setStatus(error.message || "Failed to send message");
   });
 });
 
@@ -704,7 +706,7 @@ messageInput.addEventListener("paste", (event) => {
   });
 
   void uploadFile(namedFile).catch((error) => {
-    setStatus(error.message || "粘贴上传失败");
+    setStatus(error.message || "Failed to upload pasted image");
   });
 });
 
@@ -716,13 +718,13 @@ fileInput.addEventListener("change", () => {
   const [file] = fileInput.files || [];
   fileInput.value = "";
   void uploadFile(file).catch((error) => {
-    setStatus(error.message || "上传失败");
+    setStatus(error.message || "Failed to upload file");
   });
 });
 
 newConversationButton.addEventListener("click", () => {
   void createConversation().catch((error) => {
-    setStatus(error.message || "创建会话失败");
+    setStatus(error.message || "Failed to create conversation");
   });
 });
 
@@ -733,13 +735,13 @@ refreshMessagesButton.addEventListener("click", () => {
   })
     .then(() => loadConversations())
     .catch((error) => {
-      setStatus(error.message || "刷新失败");
+      setStatus(error.message || "Failed to refresh");
     });
 });
 
 logoutButton.addEventListener("click", () => {
   void logout().catch((error) => {
-    setStatus(error.message || "退出失败");
+    setStatus(error.message || "Failed to sign out");
   });
 });
 
@@ -784,7 +786,7 @@ async function bootstrap() {
 
     resetActiveConversationView();
   } catch (error) {
-    setStatus(error.message || "初始化失败");
+    setStatus(error.message || "Initialization failed");
   }
 }
 

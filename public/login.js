@@ -24,12 +24,12 @@ async function handleLogin(event) {
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(payload.error || "登录失败");
+      throw new Error(payload.error || "Login failed");
     }
 
     window.location.href = "/chatdrop";
   } catch (error) {
-    loginError.textContent = error.message || "登录失败";
+    loginError.textContent = error.message || "Login failed";
   } finally {
     loginButton.disabled = false;
   }

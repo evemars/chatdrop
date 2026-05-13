@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,10 +13,10 @@
         <div class="sidebar-header">
           <div>
             <div class="sidebar-badge">ChatDrop</div>
-            <h1>会话</h1>
+            <h1>Conversations</h1>
           </div>
           <button id="newConversationButton" class="secondary-button" type="button">
-            新建
+            New
           </button>
         </div>
         <div id="conversationList" class="conversation-list"></div>
@@ -25,15 +25,15 @@
       <main class="chat-panel">
         <header class="chat-header">
           <div>
-            <div class="chat-header-label">当前会话</div>
-            <h2 id="conversationTitle">文件传输助手</h2>
+            <div class="chat-header-label">Current Conversation</div>
+            <h2 id="conversationTitle">File Transfer Assistant</h2>
           </div>
           <div class="chat-header-actions">
             <button id="refreshMessagesButton" class="ghost-button" type="button">
-              刷新
+              Refresh
             </button>
             <button id="logoutButton" class="ghost-button" type="button">
-              退出登录
+              Sign Out
             </button>
           </div>
         </header>
@@ -43,20 +43,20 @@
         <form id="composerForm" class="composer">
           <textarea
             id="messageInput"
-            placeholder="输入文本，或粘贴图片后直接上传"
+            placeholder="Type a message, or paste an image to upload"
             rows="4"
           ></textarea>
           <div class="composer-toolbar">
             <div class="toolbar-hint">
-              回车换行，Mac 用 Command + Enter 发送，Windows 用 Ctrl + Enter 发送；支持 Ctrl/Cmd + V 粘贴图片
+              Press Enter for a new line. Use Command + Enter on macOS or Ctrl + Enter on Windows to send. Paste images with Ctrl/Cmd + V.
             </div>
             <div class="toolbar-actions">
               <input id="fileInput" type="file" hidden />
               <button id="uploadButton" type="button" class="secondary-button">
-                上传文件
+                Upload File
               </button>
               <button id="sendButton" type="submit" class="primary-button">
-                发送
+                Send
               </button>
             </div>
           </div>

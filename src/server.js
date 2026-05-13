@@ -178,7 +178,7 @@ function resolveAuthSession(req, res) {
 function requireApiAuth(req, res, next) {
   const session = resolveAuthSession(req, res);
   if (!session) {
-    res.status(401).json({ error: "请先登录" });
+    res.status(401).json({ error: "Sign-in required" });
     return;
   }
 
@@ -256,7 +256,7 @@ app.post("/api/auth/login", (req, res) => {
   const rememberMe = toBoolean(req.body?.rememberMe);
 
   if (!safeCompare(password, config.auth.password)) {
-    res.status(401).json({ error: "密码错误" });
+    res.status(401).json({ error: "Invalid password" });
     return;
   }
 
@@ -288,7 +288,7 @@ app.get("/api/conversations", requireApiAuth, (req, res) => {
 });
 
 app.post("/api/conversations", requireApiAuth, (req, res) => {
-  const title = String(req.body?.title ?? "").trim() || "新会话";
+  const title = String(req.body?.title ?? "").trim() || "New Conversation";
   const conversation = store.createConversation(title);
   refreshConversationHeadCache(conversation.id);
   res.status(201).json({ conversation });
@@ -297,7 +297,7 @@ app.post("/api/conversations", requireApiAuth, (req, res) => {
 app.delete("/api/conversations/:conversationId", requireApiAuth, (req, res) => {
   const result = store.deleteConversation(req.params.conversationId);
   if (!result) {
-    res.status(404).json({ error: "会话不存在" });
+    res.status(404).json({ error: "Conversation not found" });
     return;
   }
 
@@ -312,14 +312,14 @@ app.delete("/api/conversations/:conversationId", requireApiAuth, (req, res) => {
 app.get("/api/conversations/:conversationId/messages", requireApiAuth, (req, res) => {
   const conversation = store.getConversation(req.params.conversationId);
   if (!conversation) {
-    res.status(404).json({ error: "会话不存在" });
+    res.status(404).json({ error: "Conversation not found" });
     return;
   }
 
   const beforeCursor =
     req.query.before === undefined ? null : Number.parseInt(String(req.query.before), 10);
   if (req.query.before !== undefined && !Number.isInteger(beforeCursor)) {
-    res.status(400).json({ error: "分页参数无效" });
+    res.status(400).json({ error: "Invalid pagination parameter" });
     return;
   }
 
@@ -338,7 +338,7 @@ app.get("/api/conversations/:conversationId/messages", requireApiAuth, (req, res
 app.get("/api/conversations/:conversationId/messages/check", requireApiAuth, (req, res) => {
   const head = getCachedConversationHead(req.params.conversationId);
   if (!head) {
-    res.status(404).json({ error: "会话不存在" });
+    res.status(404).json({ error: "Conversation not found" });
     return;
   }
 
@@ -355,7 +355,7 @@ app.get("/api/conversations/:conversationId/messages/check", requireApiAuth, (re
     (req.query.latestCursor !== undefined && !Number.isInteger(latestCursor)) ||
     (req.query.latestCreatedAt !== undefined && !Number.isInteger(latestCreatedAt))
   ) {
-    res.status(400).json({ error: "检查参数无效" });
+    res.status(400).json({ error: "Invalid message check parameters" });
     return;
   }
 
@@ -388,13 +388,13 @@ app.get("/api/conversations/:conversationId/messages/check", requireApiAuth, (re
 app.post("/api/conversations/:conversationId/messages/text", requireApiAuth, (req, res) => {
   const conversation = store.getConversation(req.params.conversationId);
   if (!conversation) {
-    res.status(404).json({ error: "会话不存在" });
+    res.status(404).json({ error: "Conversation not found" });
     return;
   }
 
   const content = String(req.body?.content ?? "").trim();
   if (!content) {
-    res.status(400).json({ error: "文本内容不能为空" });
+    res.status(400).json({ error: "Message content cannot be empty" });
     return;
   }
 
@@ -409,7 +409,7 @@ app.delete(
   (req, res) => {
     const result = store.deleteMessage(req.params.conversationId, req.params.messageId);
     if (!result) {
-      res.status(404).json({ error: "消息不存在" });
+      res.status(404).json({ error: "Message not found" });
       return;
     }
 
@@ -427,12 +427,12 @@ app.post(
     const conversation = store.getConversation(req.params.conversationId);
     if (!conversation) {
       removeFileIfPresent(req.file?.path);
-      res.status(404).json({ error: "会话不存在" });
+      res.status(404).json({ error: "Conversation not found" });
       return;
     }
 
     if (!req.file) {
-      res.status(400).json({ error: "未找到上传文件" });
+      res.status(400).json({ error: "No uploaded file found" });
       return;
     }
 
@@ -481,12 +481,12 @@ app.use((error, req, res, next) => {
   }
 
   if (error instanceof multer.MulterError) {
-    res.status(400).json({ error: "上传失败，请检查文件大小或格式" });
+    res.status(400).json({ error: "Upload failed. Check file size or format." });
     return;
   }
 
   if (req.path.startsWith("/api/")) {
-    res.status(500).json({ error: "服务器内部错误" });
+    res.status(500).json({ error: "Internal server error" });
     return;
   }
 

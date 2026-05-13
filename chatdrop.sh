@@ -27,11 +27,11 @@ ensure_config() {
 
   if [ -f "$DEFAULT_CONFIG_FILE" ]; then
     cp "$DEFAULT_CONFIG_FILE" "$CONFIG_FILE"
-    printf '%s\n' "config.yaml 不存在，已从 config-default.yaml 复制一份。"
+    printf '%s\n' "config.yaml was missing and has been copied from config-default.yaml."
     return
   fi
 
-  printf '%s\n' "缺少 config.yaml 和 config-default.yaml，无法启动。" >&2
+  printf '%s\n' "Missing config.yaml and config-default.yaml. Cannot start ChatDrop." >&2
   exit 1
 }
 
@@ -102,14 +102,14 @@ start_service() {
   cleanup_stale_pid_file
 
   if pid=$(find_running_pid); then
-    printf '%s\n' "ChatDrop 已在运行，PID: $pid"
+    printf '%s\n' "ChatDrop is already running. PID: $pid"
     printf '%s\n' "$pid" >"$PID_FILE"
     return
   fi
 
   occupied_pid=$(port_pid "$PORT")
   if [ -n "$occupied_pid" ]; then
-    printf '%s\n' "端口 $PORT 已被其他进程占用，PID: $occupied_pid" >&2
+    printf '%s\n' "Port $PORT is already in use by PID: $occupied_pid" >&2
     exit 1
   fi
 
@@ -122,12 +122,12 @@ start_service() {
   sleep 1
   pid=$(cat "$PID_FILE")
   if kill -0 "$pid" 2>/dev/null; then
-    printf '%s\n' "ChatDrop 已启动，PID: $pid"
-    printf '%s\n' "日志: $LOG_FILE"
+    printf '%s\n' "ChatDrop started. PID: $pid"
+    printf '%s\n' "Log file: $LOG_FILE"
     return
   fi
 
-  printf '%s\n' "ChatDrop 启动失败，请检查日志: $LOG_FILE" >&2
+  printf '%s\n' "ChatDrop failed to start. Check the log: $LOG_FILE" >&2
   exit 1
 }
 
@@ -136,7 +136,7 @@ stop_service() {
 
   if ! pid=$(find_running_pid); then
     rm -f "$PID_FILE"
-    printf '%s\n' "ChatDrop 当前未运行"
+    printf '%s\n' "ChatDrop is not running"
     return
   fi
 
@@ -153,18 +153,18 @@ stop_service() {
   done
 
   rm -f "$PID_FILE"
-  printf '%s\n' "ChatDrop 已停止，PID: $pid"
+  printf '%s\n' "ChatDrop stopped. PID: $pid"
 }
 
 status_service() {
   cleanup_stale_pid_file
 
   if pid=$(find_running_pid); then
-    printf '%s\n' "ChatDrop 正在运行，PID: ${pid}，端口: ${PORT}"
+    printf '%s\n' "ChatDrop is running. PID: ${pid}, port: ${PORT}"
     return
   fi
 
-  printf '%s\n' "ChatDrop 当前未运行"
+  printf '%s\n' "ChatDrop is not running"
 }
 
 logs_service() {
@@ -175,7 +175,7 @@ logs_service() {
 
 usage() {
   cat <<EOF
-用法:
+Usage:
   ./chatdrop.sh start
   ./chatdrop.sh stop
   ./chatdrop.sh restart

@@ -1,35 +1,35 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChatDrop 登录</title>
+    <title>ChatDrop Login</title>
     <link rel="stylesheet" href="/static/styles.css" />
     <script src="/static/login.js" defer></script>
   </head>
   <body class="login-page">
     <main class="login-card">
       <div class="login-badge">ChatDrop</div>
-      <h1>登录文件助手</h1>
-      <p>输入密码后即可进入本地文件与文本传输页面。</p>
+      <h1>Sign in to ChatDrop</h1>
+      <p>Enter the password to access local text and file transfer.</p>
       <form id="loginForm" class="login-form">
         <label class="field">
-          <span>登录密码</span>
+          <span>Password</span>
           <input
             id="passwordInput"
             name="password"
             type="password"
             autocomplete="current-password"
-            placeholder="请输入密码"
+            placeholder="Enter password"
             required
           />
         </label>
         <label class="checkbox-row">
           <input id="rememberInput" name="rememberMe" type="checkbox" />
-          <span>自动登录（30 天内免登录，访问时自动续期）</span>
+          <span>Keep me signed in (30-day rolling session)</span>
         </label>
         <button id="loginButton" type="submit" class="primary-button">
-          进入 ChatDrop
+          Sign in
         </button>
         <p id="loginError" class="error-text" role="alert"></p>
       </form>

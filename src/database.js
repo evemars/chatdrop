@@ -378,7 +378,7 @@ function createDatabase(config) {
     const now = Date.now();
     statements.insertConversation.run(
       createId("conv"),
-      "文件传输助手",
+      "File Transfer Assistant",
       now,
       now,
     );
@@ -426,7 +426,7 @@ function createDatabase(config) {
       };
     },
     createConversation(title) {
-      const safeTitle = (title || "新会话").trim() || "新会话";
+      const safeTitle = (title || "New Conversation").trim() || "New Conversation";
       const now = Date.now();
       const id = createId("conv");
       statements.insertConversation.run(id, safeTitle, now, now);
