@@ -277,11 +277,13 @@ textarea {
 .chat-panel {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
+  min-width: 0;
   background:
     linear-gradient(180deg, rgba(249, 251, 248, 0.96), rgba(243, 247, 244, 0.94));
 }
 
 .message-list {
+  min-width: 0;
   padding: 24px;
   overflow-y: auto;
 }
@@ -340,11 +342,13 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  min-width: 0;
   gap: 8px;
   margin-bottom: 18px;
 }
 
 .message-bubble {
+  min-width: 0;
   max-width: min(720px, 88%);
   border-radius: 20px 20px 8px 20px;
   box-shadow: 0 16px 28px rgba(21, 119, 67, 0.08);
@@ -355,6 +359,8 @@ textarea {
   background: linear-gradient(135deg, #d9f6e6 0%, #c4ebd5 100%);
   line-height: 1.7;
   white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .message-bubble--media {
@@ -373,6 +379,8 @@ textarea {
 .file-name {
   font-weight: 700;
   margin-bottom: 6px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .image-preview {
@@ -384,6 +392,8 @@ textarea {
 
 .attachment-caption {
   margin-top: 10px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .composer {
