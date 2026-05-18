@@ -6,6 +6,19 @@ function createId(prefix) {
   return `${prefix}_${crypto.randomUUID()}`;
 }
 
+function normalizeUtf8Filename(filename) {
+  const rawName = String(filename ?? "");
+  if (!rawName) {
+    return "";
+  }
+
+  const decodedName = Buffer.from(rawName, "latin1").toString("utf8");
+  const isLatin1RoundTrip =
+    Buffer.from(decodedName, "utf8").toString("latin1") === rawName;
+
+  return (isLatin1RoundTrip ? decodedName : rawName).normalize("NFC");
+}
+
 function mapMessage(row) {
   return {
     cursor: row.message_cursor,
@@ -16,7 +29,7 @@ function mapMessage(row) {
     attachment: row.attachment_id
       ? {
           id: row.attachment_id,
-          originalName: row.original_name,
+          originalName: normalizeUtf8Filename(row.original_name),
           storedName: row.stored_name,
           relativePath: row.relative_path,
           mimeType: row.mime_type,
@@ -395,7 +408,7 @@ function createDatabase(config) {
         lastPreview:
           row.last_message_type === "text"
             ? row.last_text_content ?? ""
-            : row.last_file_name ?? "",
+            : normalizeUtf8Filename(row.last_file_name),
       }));
     },
     getConversation(conversationId) {
@@ -485,7 +498,7 @@ function createDatabase(config) {
 
       return {
         id: row.id,
-        originalName: row.original_name,
+        originalName: normalizeUtf8Filename(row.original_name),
         storedName: row.stored_name,
         relativePath: row.relative_path,
         absolutePath: row.absolute_path,

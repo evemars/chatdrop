@@ -78,6 +78,19 @@ function toBoolean(value) {
   return value === true || value === "true" || value === "1" || value === "on";
 }
 
+function normalizeUtf8Filename(filename) {
+  const rawName = String(filename ?? "");
+  if (!rawName) {
+    return "";
+  }
+
+  const decodedName = Buffer.from(rawName, "latin1").toString("utf8");
+  const isLatin1RoundTrip =
+    Buffer.from(decodedName, "utf8").toString("latin1") === rawName;
+
+  return (isLatin1RoundTrip ? decodedName : rawName).normalize("NFC");
+}
+
 function buildStoredFilename(originalName, mimeType) {
   const rawExt = path.extname(originalName || "").toLowerCase();
   const safeExt = rawExt.replace(/[^.\w-]/g, "").slice(0, 16);
@@ -213,6 +226,7 @@ const upload = multer({
       callback(null, targetDir);
     },
     filename(req, file, callback) {
+      file.originalname = normalizeUtf8Filename(file.originalname);
       callback(null, buildStoredFilename(file.originalname, file.mimetype));
     },
   }),
@@ -438,7 +452,7 @@ app.post(
 
     const relativePath = path.relative(config.storage.filesDir, req.file.path);
     const message = store.createAttachmentMessage(req.params.conversationId, {
-      originalName: req.file.originalname || req.file.filename,
+      originalName: normalizeUtf8Filename(req.file.originalname) || req.file.filename,
       storedName: req.file.filename,
       relativePath,
       absolutePath: req.file.path,
